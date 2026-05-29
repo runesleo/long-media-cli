@@ -6,7 +6,7 @@ One command: URL or local file → download (subtitle-first for YT/B站) → chu
 
 Split with ffmpeg → transcribe segments serially → **incremental append** + **`--resume`**. No more 90-minute jobs that look hung or write 0 bytes.
 
-MIT · [Leo Labs](https://leolabs.me)
+MIT · [Leo Labs](https://leolabs.me) · [GitHub](https://github.com/runesleo/long-media-cli)
 
 ## Why
 
