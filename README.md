@@ -8,6 +8,12 @@ Turn a long podcast, YouTube video, or X Space into a resumable transcript on Ap
 
 One command: URL or local file → download (subtitle-first for YouTube/Bilibili) → chunked mlx-whisper → `{slug}.transcript.txt`. Optional digest stub for your AI agent.
 
+<p align="center">
+  <a href="docs/architecture.svg">
+    <img src="docs/architecture.png" alt="long-media-cli architecture: ingest, chunked transcribe, optional digest" width="920"/>
+  </a>
+</p>
+
 ## What you get
 
 - **Unified ingest** — YouTube, Bilibili, Xiaoyuzhou (小宇宙), X Space, Apple Podcasts, or local audio/video in one CLI.
