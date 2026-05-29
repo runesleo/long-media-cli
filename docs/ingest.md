@@ -35,6 +35,8 @@ Shell wrapper:
 | `--no-prefer-subs` | | 强制 whisper |
 | `--no-transcribe` | | 只下载音频 |
 | `--dry-run` | | 只规划切段 |
+| `--prepare-digest` | | 转录完成后写 digest stub |
+| `--shownotes` | | 官方 show notes 路径 |
 | `--segment-sec` | auto | Space 480，其他 600 |
 
 ## Output files
@@ -44,6 +46,8 @@ Shell wrapper:
 | `{slug}.m4a` / `.mp3` | Source audio |
 | `{slug}.transcript.txt` | Transcript or subtitle text |
 | `{slug}.ingest.json` | Run metadata |
+| `{slug}-digest.md` | Digest stub（`--prepare-digest` 或 `digest.py prepare`） |
+| `{slug}-digest.agent-prompt.md` | Agent 填充 digest 的 prompt bundle |
 | `{slug}.transcript.txt.chunks/` | Resume state |
 
 ## Source routing
@@ -67,3 +71,11 @@ Shell wrapper:
 ## Digest (not in CLI)
 
 After transcript complete → Agent reads `structured-digest.md` (private skill).
+
+```bash
+python3 digest.py status path/to/foo.transcript.txt
+python3 digest.py prepare path/to/foo.transcript.txt
+# or: ingest.py ... --prepare-digest
+```
+
+See [docs/digest.md](docs/digest.md).

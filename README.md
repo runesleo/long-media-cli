@@ -55,7 +55,17 @@ Or directly:
 python3 ingest.py "URL_OR_FILE" --out-dir ~/out --language zh --resume
 ```
 
-See [docs/ingest.md](docs/ingest.md) for flags (`--prefer-subs`, `--no-transcribe`, `--dry-run`).
+See [docs/ingest.md](docs/ingest.md) for flags (`--prefer-subs`, `--no-transcribe`, `--dry-run`, `--prepare-digest`).
+
+### Digest stub (after transcript)
+
+```bash
+python3 digest.py status ~/out/episode.transcript.txt
+python3 digest.py prepare ~/out/episode.transcript.txt
+# Agent fills stub using *.agent-prompt.md
+```
+
+Or chain from ingest: `ingest.py URL ... --prepare-digest`
 
 ### Legacy wrappers (still work)
 
@@ -122,17 +132,20 @@ python3 transcribe_chunked.py episode.m4a \
 long-media-cli/
   ingest.py                  # unified: URL/file → download → transcript
   ingest.sh                  # shell wrapper
+  digest.py                  # status + digest stub + agent prompt
   transcribe_chunked.py      # core: split + transcribe + manifest
   download_twitter_space.py  # yt-dlp Space → m4a
   space_pipeline.sh          # → ingest.sh (compat)
   long_media.sh              # → ingest.sh (compat)
   docs/ingest.md
+  docs/digest.md
+  docs/digest-template.md
   docs/chunked-local.md
 ```
 
 ## Not in CLI
 
-- Structured digest / shownotes generation (Agent + private skill)
+- Full LLM digest generation (use Agent + `digest.py prepare` stub)
 - Web UI / hosted SaaS
 
 ## Sync with private skill

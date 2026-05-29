@@ -266,6 +266,30 @@ def _transcribe(
     return json.loads(proc.stdout)
 
 
+def _maybe_prepare_digest(
+    result: dict[str, Any],
+    transcript: Path,
+    *,
+    title: Optional[str],
+    url: Optional[str],
+    shownotes: Optional[Path],
+    prepare: bool,
+) -> dict[str, Any]:
+    if not prepare:
+        return result
+    from digest import prepare_digest as prep
+
+    dig = prep(
+        transcript,
+        title=title,
+        url=url,
+        shownotes=shownotes,
+        force=result.get("transcript_source") == "subtitle",
+    )
+    result["digest"] = dig
+    return result
+
+
 def ingest(
     url_or_path: str,
     *,
@@ -280,6 +304,8 @@ def ingest(
     resume: bool = True,
     dry_run: bool = False,
     cookies: str = "chrome",
+    prepare_digest: bool = False,
+    shownotes: Optional[Path] = None,
 ) -> dict[str, Any]:
     source, target = detect_source(url_or_path)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -328,7 +354,14 @@ def ingest(
                     manifest_path = stem.with_suffix(".ingest.json")
                     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
                     _log(f"used subtitles → {transcript}")
-                    return manifest
+                    return _maybe_prepare_digest(
+                        manifest,
+                        transcript,
+                        title=title,
+                        url=target,
+                        shownotes=shownotes,
+                        prepare=prepare_digest,
+                    )
                 _log("subtitle too short, falling back to whisper")
 
         if source == SOURCE_XIAOYUZHOU:
@@ -387,7 +420,15 @@ def ingest(
         "transcribe": tx,
     }
     stem.with_suffix(".ingest.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return result
+    url = target if source != SOURCE_FILE else None
+    return _maybe_prepare_digest(
+        result,
+        transcript,
+        title=title,
+        url=url,
+        shownotes=shownotes,
+        prepare=prepare_digest,
+    )
 
 
 def main() -> None:
@@ -404,6 +445,8 @@ def main() -> None:
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="Plan chunks without transcribing")
     parser.add_argument("--cookies-from-browser", default="chrome", help="For yt-dlp (empty to disable)")
+    parser.add_argument("--prepare-digest", action="store_true", help="Write digest stub after transcript")
+    parser.add_argument("--shownotes", type=Path, help="Official show notes for digest prompt")
     args = parser.parse_args()
 
     out_dir = (args.out_dir or _default_out_dir()).expanduser().resolve()
@@ -422,6 +465,8 @@ def main() -> None:
         resume=not args.no_resume,
         dry_run=args.dry_run,
         cookies=cookies,
+        prepare_digest=args.prepare_digest,
+        shownotes=args.shownotes,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
