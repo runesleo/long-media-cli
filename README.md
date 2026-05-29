@@ -1,77 +1,96 @@
 # long-media-cli
 
-Unified ingest for **long video + long podcast** on Apple Silicon.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-One command: URL or local file → download (subtitle-first for YT/B站) → chunked mlx-whisper → `{slug}.transcript.txt`.
+**English** · [中文](README.zh.md)
 
-Split with ffmpeg → transcribe segments serially → **incremental append** + **`--resume`**. No more 90-minute jobs that look hung or write 0 bytes.
+Turn a long podcast, YouTube video, or X Space into a resumable transcript on Apple Silicon — without a 90-minute whisper job that looks hung or writes 0 bytes.
 
-MIT · [Leo Labs](https://leolabs.me) · [GitHub](https://github.com/runesleo/long-media-cli)
+One command: URL or local file → download (subtitle-first for YouTube/Bilibili) → chunked mlx-whisper → `{slug}.transcript.txt`. Optional digest stub for your AI agent.
 
-## Why
+## What you get
 
-| Problem | This CLI |
-|---------|----------|
-| 90+ min single whisper run hangs / 0-byte output | 10 min segments, serial mlx |
-| No progress visibility | Each segment **appends** to `--out` (`tail -f`) |
-| Interrupt = start over | `manifest.json` + `--resume` |
+- **Unified ingest** — YouTube, Bilibili, Xiaoyuzhou (小宇宙), X Space, Apple Podcasts, or local audio/video in one CLI.
+- **Chunked transcription** — ffmpeg splits long audio; mlx-whisper runs **serially**; each segment **appends** to the output file (`tail -f` friendly).
+- **Resume after interrupt** — `manifest.json` + `--resume`; no full restart on 60+ minute sources.
+- **Subtitle-first for video** — tries VTT/subs before whisper when available.
+- **Digest stub (v0.2+)** — `digest.py prepare` writes chapter skeleton + agent prompt; flags mlx repetition hallucinations on intro/outro segments.
 
-## Install
+## How it works
 
-**Required**
-
-```bash
-brew install ffmpeg yt-dlp
-pipx install mlx-whisper
+```text
+URL or local file
+    ↓ ingest.py (platform detect → download or subs)
+    ↓ transcribe_chunked.py (if no usable subtitles)
+    ↓ {slug}.transcript.txt + {slug}.ingest.json
+    ↓ digest.py prepare (optional)
+    ↓ your Agent fills {slug}-digest.md
 ```
 
-**Optional engines**
+**Input** (Xiaoyuzhou episode):
 
-- `faster-whisper` — CPU fallback (`--engine faster`)
-- OpenAI API — `--engine openai` + `OPENAI_API_KEY`
+```bash
+python3 ingest.py "https://www.xiaoyuzhoufm.com/episode/EPISODE_ID" \
+  --out-dir ./output --language zh --resume
+```
+
+**Output**:
+
+```text
+output/
+  episode-slug.m4a
+  episode-slug.transcript.txt          # incremental, segment markers
+  episode-slug.transcript.txt.chunks/  # manifest + segment mp3s
+  episode-slug.ingest.json             # run metadata
+```
+
+**Short video with subtitles** — ingest may skip whisper entirely and write transcript from VTT.
+
+## Setup
+
+**Clone and install dependencies:**
 
 ```bash
 git clone https://github.com/runesleo/long-media-cli.git
 cd long-media-cli
-chmod +x ingest.sh space_pipeline.sh long_media.sh
+chmod +x ingest.sh ingest.py digest.py space_pipeline.sh long_media.sh
+
+brew install ffmpeg yt-dlp
+pipx install mlx-whisper
 ```
+
+**Any AI coding agent:**
+
+Point your agent at `docs/ingest.md` + `docs/digest-template.md`. The pipeline is plain Python + shell — no framework lock-in.
+
+## Requirements
+
+- macOS Apple Silicon (M-series) — primary tested platform
+- `ffmpeg`, `ffprobe`, `yt-dlp`
+- `mlx_whisper` (`pipx install mlx-whisper`) — default engine
+- Optional: `faster-whisper` (`--engine faster`), OpenAI API (`--engine openai` + `OPENAI_API_KEY`)
+- YouTube / X Space download: `--cookies-from-browser chrome` (default) or your browser of choice
+
+**Privacy note:** By default, `ingest.py` and `download_twitter_space.py` pass `--cookies-from-browser chrome` to yt-dlp so authenticated downloads work. That reads cookies from your local Chrome profile on this machine only — nothing is uploaded by this CLI. To disable: `--cookies-from-browser ""` or set an empty value in the shell wrapper.
 
 ## Quick start
 
-### Unified ingest (recommended)
-
-YouTube / B站 / 小宇宙 / X Space / Apple Podcasts / local file:
-
 ```bash
-./ingest.sh "https://www.xiaoyuzhoufm.com/episode/EPISODE_ID" ~/out zh
-./ingest.sh "https://www.youtube.com/watch?v=VIDEO_ID" ~/out zh
-./ingest.sh "https://x.com/i/spaces/SPACE_ID" ~/out zh 480
-./ingest.sh /path/to/episode.m4a ~/out zh 600
-```
+# Podcast / Xiaoyuzhou
+./ingest.sh "https://www.xiaoyuzhoufm.com/episode/..." ./output zh
 
-Or directly:
+# YouTube (subs first, else whisper)
+./ingest.sh "https://www.youtube.com/watch?v=..." ./output zh
 
-```bash
-python3 ingest.py "URL_OR_FILE" --out-dir ~/out --language zh --resume
-```
+# X Space (480s segments)
+./ingest.sh "https://x.com/i/spaces/SPACE_ID" ./output zh 480
 
-See [docs/ingest.md](docs/ingest.md) for flags (`--prefer-subs`, `--no-transcribe`, `--dry-run`, `--prepare-digest`).
+# Local file
+./ingest.sh ./episode.m4a ./output zh 600
 
-### Digest stub (after transcript)
-
-```bash
-python3 digest.py status ~/out/episode.transcript.txt
-python3 digest.py prepare ~/out/episode.transcript.txt
-# Agent fills stub using *.agent-prompt.md
-```
-
-Or chain from ingest: `ingest.py URL ... --prepare-digest`
-
-### Legacy wrappers (still work)
-
-```bash
-./long_media.sh /path/to/episode.m4a ~/out zh
-./space_pipeline.sh "https://x.com/i/spaces/SPACE_ID" ~/out zh 480
+# Digest stub after transcript complete
+python3 digest.py status ./output/episode.transcript.txt
+python3 digest.py prepare ./output/episode.transcript.txt
 ```
 
 Low-level transcribe only:
@@ -79,78 +98,51 @@ Low-level transcribe only:
 ```bash
 python3 transcribe_chunked.py episode.m4a \
   --out episode.transcript.txt \
-  --language zh \
-  --engine mlx \
-  --segment-sec 600 \
-  --resume
+  --language zh --engine mlx --segment-sec 600 --resume
 ```
 
-## Verified benchmarks (2026-05-29)
+## Verified
 
-Tested on MacBook Pro Apple Silicon · `mlx_whisper` · **not re-run for this release** — numbers from production runs.
+Tested on MacBook Pro Apple Silicon · `mlx_whisper` · production runs (not re-run for every tag).
 
-### 小宇宙 podcast · 139 min
+| Source | Duration | Segments | Result |
+|--------|----------|----------|--------|
+| Xiaoyuzhou podcast | ~139 min | 14 × 600 s | 14/14 · incremental transcript |
+| X Space replay | ~71 min | 9 × 480 s | 9/9 · seg_0/seg_8 may hallucinate (mlx intro/outro) |
 
-| | |
-|---|---|
-| Episode | [戴雨森 × 源码资本](https://www.xiaoyuzhoufm.com/episode/6a15a2cbff7b9a8c0a5b953f) |
-| Duration | **8312 s (~138 min)** |
-| Segments | **14** × 600 s |
-| Command | `--language zh --segment-sec 600 --engine mlx --resume` |
-| Result | 14/14 segments · incremental transcript |
+See [docs/chunked-local.md](docs/chunked-local.md) for resume/progress details.
 
-### Twitter/X Space · 71 min
+## Known limitations (v0.2)
 
-| | |
-|---|---|
-| Space | [Alkanes · $FIRE](https://x.com/i/spaces/1AKEmmPZoevKL) |
-| Duration | **~71 min** |
-| Segments | **9** × 480 s |
-| Command | `space_pipeline.sh` → `--language zh --segment-sec 480` |
-| Result | 9/9 segments · note: seg_0/seg_8 may need review (mlx hallucination on intro/outro) |
+- **Long audio only** — designed for >20 min sources; short clips may over-chunk.
+- **mlx intro/outro hallucination** — some Spaces/podcasts repeat lyrics-like garbage in first/last segment; `digest.py prepare` flags these — review or re-run those segments.
+- **Bilibili** — uses direct API (yt-dlp 412 workaround); may break if API changes.
+- **Xiaoyuzhou** — scrapes CDN URL from page HTML; SPA changes may require script update.
+- **Digest body** — CLI writes stub + agent prompt only; LLM summary is Agent-driven, not built-in.
+- **No Windows/Linux CI** — Apple Silicon + mlx is the happy path; `faster` engine is the CPU fallback.
 
-## Progress & resume
+## Roadmap
 
-```bash
-# Watch live output
-tail -f episode.transcript.txt
+**Ingest**
+- [ ] pyproject.toml + `pip install` entry point
+- [ ] `--engine` auto-detect when mlx unavailable
 
-# After interrupt
-python3 transcribe_chunked.py episode.m4a \
-  --out episode.transcript.txt \
-  --resume --engine mlx
+**Transcribe**
+- [ ] Optional segment re-run by index (fix hallucinated seg_0/seg_8 without full job)
+- [ ] Speaker diarization hook (short files / per-segment)
 
-# Plan segments without transcribing
-python3 transcribe_chunked.py episode.m4a \
-  --out episode.transcript.txt \
-  --dry-run
-```
+**Digest**
+- [ ] Optional LLM backend behind env flag (opt-in, not default)
 
-## Repo layout
+## About the author
 
-```text
-long-media-cli/
-  ingest.py                  # unified: URL/file → download → transcript
-  ingest.sh                  # shell wrapper
-  digest.py                  # status + digest stub + agent prompt
-  transcribe_chunked.py      # core: split + transcribe + manifest
-  download_twitter_space.py  # yt-dlp Space → m4a
-  space_pipeline.sh          # → ingest.sh (compat)
-  long_media.sh              # → ingest.sh (compat)
-  docs/ingest.md
-  docs/digest.md
-  docs/digest-template.md
-  docs/chunked-local.md
-```
+*Leo ([@runes_leo](https://x.com/runes_leo)) — AI × Crypto independent builder. Trading on [Polymarket](https://polymarket.com/?via=runes-leo&r=runesleo&utm_source=github&utm_content=long-media-cli), building data and content pipelines with Claude Code and Codex.*
 
-## Not in CLI
+*[leolabs.me](https://leolabs.me) — writing · community · open-source tools · indie projects · all platforms.*
 
-- Full LLM digest generation (use Agent + `digest.py prepare` stub)
-- Web UI / hosted SaaS
+*[X Subscription](https://x.com/runes_leo/creator-subscriptions/subscribe) — paid content weekly, or just buy me a coffee 😁*
 
-## Sync with private skill
-
-Development SSOT also lives in `~/.codex/skills/transcribe/`. This repo is the **public extract** for T303 Phase 1.
+*Learn in public, Build in public.*
 
 ## License
 

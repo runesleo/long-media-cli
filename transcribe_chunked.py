@@ -452,6 +452,8 @@ def main() -> None:
         out_path.unlink()
 
     manifest = _load_manifest(manifest_path)
+    if not args.resume and out_path.exists():
+        out_path.unlink()
     if not manifest or not args.resume:
         manifest = {
             "version": 1,

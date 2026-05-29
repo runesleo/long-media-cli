@@ -184,7 +184,7 @@ def prepare_digest(
 
 **来源**: {meta_url or "—"}
 **时长**: {_format_duration(float(duration) if duration else None)}
-**转写**: `{transcript}`
+**转写**: `{transcript.name}`
 **段落**: {status.get('segments_done') or len(segments)}/{status.get('segments_total') or len(segments) or "—"}
 
 ## 概要
@@ -253,7 +253,7 @@ Fill `{out_path.name}` using template in long-media-cli `docs/digest-template.md
 {chr(10).join(excerpt_parts)}
 
 ## Full transcript
-`{transcript}`
+`{transcript.name}` (in output dir)
 """
         prompt_path.write_text(prompt, encoding="utf-8")
         result["agent_prompt"] = str(prompt_path)

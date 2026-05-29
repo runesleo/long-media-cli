@@ -40,4 +40,4 @@ python3 ingest.py URL --out-dir ~/out --prepare-digest
 2. Fill stub sections; align chapters to segment timestamps
 3. Run anti-AI / FORAB if publishing project marketing content
 
-See also: `~/.codex/skills/transcribe/references/structured-digest.md` (private skill mirror).
+See also: `docs/digest-template.md` in this repo for the public template.

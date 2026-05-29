@@ -49,7 +49,7 @@ def _transcribe_cmd_template(audio_path: Path, *, language: str = "en", segment_
 
 def _default_out_dir() -> Path:
     today = date.today().isoformat()
-    return Path.home() / "Projects" / "_inventory" / today
+    return Path.cwd() / "output" / today
 
 
 def _run_ytdlp(url: str, out_template: str, cookies_from_browser: Optional[str]) -> Path:
@@ -108,7 +108,7 @@ def main() -> None:
     parser.add_argument(
         "--out-dir",
         type=Path,
-        help="Output directory (default: ~/Projects/_inventory/YYYY-MM-DD)",
+        help="Output directory (default: ./output/YYYY-MM-DD)",
     )
     parser.add_argument("--slug", help="Filename slug override")
     parser.add_argument(
@@ -119,8 +119,8 @@ def main() -> None:
     args = parser.parse_args()
 
     url = args.url.strip()
-    if "spaces" not in url and "twitter.com" not in url and "x.com" not in url:
-        _die("URL does not look like a Twitter/X Space link")
+    if "/i/spaces/" not in url and "twitter.com/i/spaces/" not in url and "x.com/i/spaces/" not in url:
+        _die("URL must be a Twitter/X Space link (https://x.com/i/spaces/<id>)")
 
     out_dir = (args.out_dir or _default_out_dir()).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)

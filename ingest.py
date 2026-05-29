@@ -39,7 +39,7 @@ def _slug(text: str, max_len: int = 48) -> str:
 
 
 def _default_out_dir() -> Path:
-    return Path.home() / "Projects" / "_inventory" / date.today().isoformat()
+    return Path.cwd() / "output" / date.today().isoformat()
 
 
 def detect_source(url_or_path: str) -> Tuple[str, str]:
@@ -80,7 +80,7 @@ def _fetch_text(url: str, headers: Optional[dict[str, str]] = None) -> str:
 
 def _download_xiaoyuzhou(url: str, stem: Path) -> Path:
     html = _fetch_text(url)
-    m = re.search(r"https://media\.xyzcdn\.net/[^\"'\\s]+\\.(m4a|mp3)", html)
+    m = re.search(r"https://media\.xyzcdn\.net/[^\s\"']+\.(m4a|mp3)", html)
     if not m:
         _die("xiaoyuzhou: audio URL not found in page (__NEXT_DATA__ / CDN)")
     audio_url = m.group(0)
@@ -149,7 +149,7 @@ def _yt_dlp_audio(url: str, stem: Path, cookies: Optional[str]) -> Path:
         url,
     ]
     if cookies:
-        cmd = ["yt-dlp", f"--cookies-from-browser={cookies}", *cmd[1:]]
+        cmd = ["yt-dlp", "--cookies-from-browser", cookies, *cmd[1:]]
     _run(cmd)
     for ext in (".mp3", ".m4a", ".opus", ".webm"):
         p = stem.with_suffix(ext)
@@ -178,7 +178,7 @@ def _try_subtitles(url: str, stem: Path, cookies: Optional[str], langs: str) -> 
         url,
     ]
     if cookies:
-        cmd = ["yt-dlp", f"--cookies-from-browser={cookies}", *cmd[1:]]
+        cmd = ["yt-dlp", "--cookies-from-browser", cookies, *cmd[1:]]
     proc = _run(cmd, check=False)
     if proc.returncode != 0:
         _log(f"subtitle fetch failed: {(proc.stderr or proc.stdout or '').strip()[:200]}")
@@ -330,7 +330,34 @@ def ingest(
         slug = slug or _slug(re.sub(r"https?://", "", target).split("/")[-1][:40])
         stem = out_dir / slug
 
-        if source in (SOURCE_YOUTUBE, SOURCE_BILIBILI, SOURCE_GENERIC) and prefer_subs and not subs_only:
+        if subs_only:
+            if source not in (SOURCE_YOUTUBE, SOURCE_BILIBILI, SOURCE_GENERIC):
+                _die("--subs-only supports YouTube/Bilibili/generic video URLs only")
+            vtt = _try_subtitles(
+                target,
+                stem,
+                cookies if cookies else None,
+                "zh-Hans,zh,en" if source == SOURCE_BILIBILI else "en,zh-Hans,zh",
+            )
+            if not vtt:
+                _die("no subtitles found (--subs-only)")
+            transcript = stem.with_suffix(".transcript.txt")
+            transcript.write_text(_vtt_to_text(vtt), encoding="utf-8")
+            result = {
+                "source": target,
+                "source_type": source,
+                "slug": slug,
+                "transcript": str(transcript),
+                "transcript_source": "subtitle",
+                "subtitle_file": str(vtt),
+                "title": title,
+            }
+            stem.with_suffix(".ingest.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            return _maybe_prepare_digest(
+                result, transcript, title=title, url=target, shownotes=shownotes, prepare=prepare_digest
+            )
+
+        if source in (SOURCE_YOUTUBE, SOURCE_BILIBILI, SOURCE_GENERIC) and prefer_subs:
             vtt = _try_subtitles(
                 target,
                 stem,
@@ -381,7 +408,7 @@ def ingest(
     transcript = stem.with_suffix(".transcript.txt")
 
     if subs_only:
-        _die("--subs-only requires youtube/bilibili URL with subtitles")
+        _die("--subs-only should have returned earlier")
 
     if no_transcribe:
         result = {
