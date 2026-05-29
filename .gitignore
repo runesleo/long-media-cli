@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.chunks/
+*.chunks/
+.DS_Store
+.env
+.venv/
+venv/
+*.m4a
+*.mp3
+*.transcript.txt
+*.download.json
