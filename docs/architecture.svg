@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="long-media-cli architecture">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#a371f7"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect x="40" y="28" width="1200" height="664" rx="24" fill="#010409" stroke="#30363d" stroke-width="1.5"/>
+
+  <text x="80" y="78" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="34" font-weight="700">long-media-cli</text>
+  <text x="80" y="112" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">URL or local file to resumable transcript to optional AI digest stub</text>
+  <rect x="980" y="52" width="220" height="36" rx="18" fill="#21262d" stroke="#30363d"/>
+  <text x="1090" y="75" text-anchor="middle" fill="#58a6ff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600">Apple Silicon + mlx-whisper</text>
+
+  <text x="80" y="168" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">INPUTS</text>
+  <g filter="url(#shadow)">
+    <rect x="80" y="182" width="170" height="72" rx="14" fill="#161b22" stroke="#388bfd" stroke-width="1.5"/>
+    <text x="165" y="214" text-anchor="middle" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">YouTube</text>
+    <text x="165" y="236" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">Bilibili, subs first</text>
+
+    <rect x="270" y="182" width="170" height="72" rx="14" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+    <text x="355" y="214" text-anchor="middle" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Podcasts</text>
+    <text x="355" y="236" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">Xiaoyuzhou, Apple</text>
+
+    <rect x="460" y="182" width="170" height="72" rx="14" fill="#161b22" stroke="#d29922" stroke-width="1.5"/>
+    <text x="545" y="214" text-anchor="middle" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">X Space</text>
+    <text x="545" y="236" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">480s segments</text>
+
+    <rect x="650" y="182" width="170" height="72" rx="14" fill="#161b22" stroke="#a371f7" stroke-width="1.5"/>
+    <text x="735" y="214" text-anchor="middle" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Local file</text>
+    <text x="735" y="236" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">m4a, mp4, wav</text>
+  </g>
+
+  <line x1="640" y1="262" x2="640" y2="292" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="220" y="300" width="840" height="88" rx="18" fill="#0d1117" stroke="url(#accent)" stroke-width="2"/>
+    <rect x="240" y="318" width="92" height="28" rx="8" fill="#21262d"/>
+    <text x="286" y="337" text-anchor="middle" fill="#58a6ff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">ingest.py</text>
+    <text x="360" y="338" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="600">Platform detect, download, subtitle check</text>
+    <text x="360" y="362" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">yt-dlp, browser cookies, VTT bypass whisper when good enough</text>
+  </g>
+
+  <line x1="420" y1="388" x2="420" y2="418" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="860" y1="388" x2="860" y2="418" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="300" y="422" width="240" height="54" rx="12" fill="#122117" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="420" y="446" text-anchor="middle" fill="#3fb950" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Has subtitles</text>
+  <text x="420" y="466" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">Write transcript from VTT</text>
+
+  <rect x="740" y="422" width="240" height="54" rx="12" fill="#1c141f" stroke="#a371f7" stroke-width="1.5"/>
+  <text x="860" y="446" text-anchor="middle" fill="#d2a8ff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">No subtitles</text>
+  <text x="860" y="466" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">Route to chunked whisper</text>
+
+  <line x1="860" y1="476" x2="860" y2="506" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+  <g filter="url(#shadow)">
+    <rect x="520" y="510" width="680" height="96" rx="18" fill="#161b22" stroke="#a371f7" stroke-width="1.5"/>
+    <rect x="540" y="528" width="188" height="28" rx="8" fill="#21262d"/>
+    <text x="634" y="547" text-anchor="middle" fill="#d2a8ff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="700">transcribe_chunked.py</text>
+    <text x="748" y="548" fill="#f0f6fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">ffmpeg split, mlx-whisper serial, append</text>
+    <text x="540" y="578" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">600s chunks, manifest.json, --resume, tail -f friendly</text>
+  </g>
+
+  <line x1="420" y1="476" x2="420" y2="560" stroke="#484f58" stroke-width="2"/>
+  <line x1="420" y1="560" x2="300" y2="560" stroke="#484f58" stroke-width="2"/>
+  <line x1="300" y1="560" x2="300" y2="628" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="860" y1="606" x2="860" y2="628" stroke="#484f58" stroke-width="2"/>
+  <line x1="860" y1="628" x2="520" y2="628" stroke="#484f58" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="80" y="648" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">OUTPUT</text>
+  <g filter="url(#shadow)">
+    <rect x="80" y="632" width="360" height="56" rx="14" fill="#161b22" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="260" y="656" text-anchor="middle" fill="#58a6ff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">{slug}.transcript.txt</text>
+    <text x="260" y="676" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">+ .chunks/ and ingest.json</text>
+
+    <rect x="460" y="632" width="360" height="56" rx="14" fill="#161b22" stroke="#d29922" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text x="640" y="656" text-anchor="middle" fill="#d29922" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">digest.py prepare (optional)</text>
+    <text x="640" y="676" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">stub, agent prompt, hallucination flags</text>
+
+    <rect x="840" y="632" width="360" height="56" rx="14" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+    <text x="1020" y="656" text-anchor="middle" fill="#3fb950" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Your AI Agent</text>
+    <text x="1020" y="676" text-anchor="middle" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">fills {slug}-digest.md</text>
+  </g>
+
+  <rect x="880" y="182" width="320" height="96" rx="16" fill="#122117" stroke="#238636" stroke-width="1"/>
+  <text x="1040" y="212" text-anchor="middle" fill="#3fb950" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700">Verified benchmarks</text>
+  <text x="920" y="238" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">Xiaoyuzhou podcast: 139 min, 14 segments</text>
+  <text x="920" y="258" fill="#8b949e" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">X Space replay: 71 min, 9 segments</text>
+
+  <text x="640" y="708" text-anchor="middle" fill="#484f58" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">github.com/runesleo/long-media-cli | MIT</text>
+</svg>

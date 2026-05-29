@@ -8,6 +8,12 @@ English: [README.md](./README.md)
 
 一条命令：URL 或本地文件 → 下载（YouTube/B站 优先字幕）→ mlx 切段转写 → `{slug}.transcript.txt`。v0.2 起可选 digest stub，交给 Agent 写精华。
 
+<p align="center">
+  <a href="docs/architecture.svg">
+    <img src="docs/architecture.png" alt="long-media-cli 架构：ingest、切段转写、可选 digest" width="920"/>
+  </a>
+</p>
+
 ## 你能得到什么
 
 - **统一 ingest** — YouTube、B站、小宇宙、X Space、Apple Podcasts、本地音视频，一个入口。
