@@ -150,6 +150,15 @@ See [docs/chunked-local.md](docs/chunked-local.md) for resume/progress details.
 
 *Learn in public, Build in public.*
 
+## More from this workshop
+
+Full map: **[runesleo](https://github.com/runesleo/runesleo)** — all open-source projects and working systems.
+
+- [x-reader](https://github.com/runesleo/x-reader) — universal content reader MCP, 10+ platforms
+- [claude-code-workflow](https://github.com/runesleo/claude-code-workflow) — QuietHarness — shared AI working system for Claude Code / Codex / Cursor
+- [ai-health-vault](https://github.com/runesleo/ai-health-vault) — AI + Obsidian health management system
+- [polymarket-toolkit](https://github.com/runesleo/polymarket-toolkit) — Polymarket research CLI + AI skills
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
